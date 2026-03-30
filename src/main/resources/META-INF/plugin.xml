@@ -1,0 +1,33 @@
+<idea-plugin>
+    <id>com.miladnalbandi.zpl-label-viewer</id>
+    <name>ZPL Label Viewer</name>
+    <vendor email="m.nalbandi.r@gmail.com" url="https://github.com/Milimarty/zpl-label-viewer">MiladNalbandi</vendor>
+
+    <description><![CDATA[
+    <b>ZPL Label Viewer</b> — preview and debug ZPL II shipping labels without leaving your IDE.<br><br>
+    <b>Features:</b>
+    <ul>
+      <li>Auto-detects whether input is raw ZPL or Base-64 encoded ZPL</li>
+      <li>Local renderer — no internet required; supports text, barcodes (Code 128, QR, EAN, UPC-A, Data Matrix), graphic boxes, ellipses, diagonals, and ^GFA compressed bitmaps</li>
+      <li>Labelary API fallback for labels that use unsupported commands</li>
+      <li>Fit-to-window preview with zoom level indicator — no scrolling</li>
+      <li>200 / 300 DPI selection</li>
+      <li>Save rendered label as PNG</li>
+      <li>View decoded ZPL text from Base-64 input</li>
+    </ul>
+    <br>
+    Powered by <a href="https://github.com/Milimarty/zpl-renderer">zpl-renderer</a> open-source library.
+  ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="ZplLabelViewerNotification" displayType="BALLOON"/>
+
+        <toolWindow id="ZPL Label Viewer"
+                    factoryClass="com.miladnalbandi.ZplToolWindowFactory"
+                    anchor="right"
+                    icon="AllIcons.Actions.ToggleVisibility"
+                    canCloseContents="false"/>
+    </extensions>
+</idea-plugin>

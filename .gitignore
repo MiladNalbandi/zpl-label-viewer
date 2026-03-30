@@ -1,0 +1,12 @@
+.gradle/
+build/
+out/
+*.class
+\!gradle/wrapper/gradle-wrapper.jar
+.idea/
+*.iml
+.DS_Store
+chain.crt
+private.pem
+private_encrypted.pem
+Archive.zip
