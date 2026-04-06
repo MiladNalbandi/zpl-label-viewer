@@ -6,6 +6,7 @@ import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
@@ -17,6 +18,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.awt.*
 import java.awt.event.ActionEvent
 import java.awt.image.BufferedImage
@@ -45,6 +47,10 @@ class ZplToolWindowFactory : ToolWindowFactory {
     private val SRC_LOCAL_THEN_API = "Local → API fallback"
 
     // ─────────────────────────────────────────────────────────────────────────
+
+    override suspend fun isApplicableAsync(project: Project): Boolean = true
+
+    override suspend fun manage(toolWindow: ToolWindow, toolWindowManager: ToolWindowManager) = Unit
 
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val panel = SimpleToolWindowPanel(false)
@@ -375,7 +381,7 @@ class ZplToolWindowFactory : ToolWindowFactory {
             .build()
 
         val req = Request.Builder().url(url)
-            .post(RequestBody.create("application/x-www-form-urlencoded".toMediaType(), zpl.toByteArray()))
+            .post(zpl.toByteArray().toRequestBody("application/x-www-form-urlencoded".toMediaType()))
             .build()
 
         client.newCall(req).execute().use { res ->
