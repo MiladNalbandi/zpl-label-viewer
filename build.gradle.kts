@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.miladnalbandi"
-version = "1.1.1"
+version = "1.1.2"
 
 repositories {
     mavenCentral()
@@ -18,7 +18,7 @@ repositories {
 
 dependencies {
     // ZPL rendering engine
-    implementation("com.github.Milimarty:zpl-renderer:v1.0.0")
+    implementation("com.github.MiladNalbandi:zpl-renderer:v1.1.0")
 
     // HTTP client for Labelary API fallback
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
