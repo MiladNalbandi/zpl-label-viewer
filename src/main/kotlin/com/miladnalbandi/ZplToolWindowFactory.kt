@@ -17,11 +17,14 @@ import com.miladnalbandi.zpl.ZplRenderer
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.rendering.ImageType
+import org.apache.pdfbox.rendering.PDFRenderer
 import java.awt.*
 import java.awt.event.ActionEvent
 import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
 import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -40,6 +43,7 @@ class ZplToolWindowFactory : ToolWindowFactory {
     private val INPUT_AUTO = "Auto-detect"
     private val INPUT_ZPL  = "ZPL"
     private val INPUT_B64  = "Base-64"
+    private val INPUT_PDF  = "PDF / Base64 PDF"
 
     // ── Render-source choices ─────────────────────────────────────────────────
     private val SRC_LOCAL          = "Local renderer"
@@ -84,7 +88,7 @@ class ZplToolWindowFactory : ToolWindowFactory {
         // ── Controls row ──────────────────────────────────────────────────────
         val dpiCombo = ComboBox(arrayOf("200 dpi", "300 dpi")).apply { selectedIndex = 1 }
 
-        val inputTypeCombo = ComboBox(arrayOf(INPUT_AUTO, INPUT_ZPL, INPUT_B64)).apply {
+        val inputTypeCombo = ComboBox(arrayOf(INPUT_AUTO, INPUT_ZPL, INPUT_B64, INPUT_PDF)).apply {
             selectedIndex = 0
             toolTipText = "Select the input format, or use Auto-detect"
         }
@@ -112,10 +116,13 @@ class ZplToolWindowFactory : ToolWindowFactory {
         val btnSave   = styledButton("Save PNG",    tip = "Save the rendered image as PNG").apply { isEnabled = false }
         val btnShowZpl = styledButton("View ZPL",   tip = "Show the decoded ZPL text")
         val btnClearCache = styledButton("Clear Cache", tip = "Flush in-memory image caches")
+        val btnLoadPdf = styledButton("Load PDF…",  tip = "Open a PDF file and render its first page")
 
         val buttonRow = JPanel(FlowLayout(FlowLayout.LEFT, 6, 0)).apply {
             isOpaque = false
             add(btnRender); add(btnSave); add(btnShowZpl); add(btnClearCache)
+            add(JSeparator(SwingConstants.VERTICAL).apply { preferredSize = Dimension(1, 22) })
+            add(btnLoadPdf)
         }
 
         // ── Preview — scales image to fit, no scrollbars needed ──────────────
@@ -228,12 +235,34 @@ class ZplToolWindowFactory : ToolWindowFactory {
         fun detectType(raw: String): String {
             val t = raw.trim()
             if (t.startsWith("^") || t.contains("^XA", ignoreCase = true)) return INPUT_ZPL
+            if (t.startsWith("%PDF")) return INPUT_PDF
             runCatching {
-                val decoded = String(Base64.getDecoder().decode(t), StandardCharsets.UTF_8)
-                if (decoded.contains("^XA", ignoreCase = true) || decoded.startsWith("^"))
+                val decoded = Base64.getDecoder().decode(t)
+                if (decoded.size > 4 && String(decoded.slice(0..3).toByteArray()) == "%PDF")
+                    return INPUT_PDF
+                val decodedStr = String(decoded, StandardCharsets.UTF_8)
+                if (decodedStr.contains("^XA", ignoreCase = true) || decodedStr.startsWith("^"))
                     return INPUT_B64
             }
             return INPUT_ZPL   // default assumption
+        }
+
+        // ── PDF rendering ─────────────────────────────────────────────────────
+        fun renderPdf(pdfBytes: ByteArray, renderDpi: Int): BufferedImage? = runCatching {
+            PDDocument.load(pdfBytes).use { doc ->
+                val renderer = PDFRenderer(doc)
+                renderer.renderImageWithDPI(0, renderDpi.toFloat(), ImageType.RGB)
+            }
+        }.getOrNull()
+
+        fun renderPdfInput(raw: String): BufferedImage? {
+            val t = raw.trim()
+            // Raw PDF bytes pasted as string (rare but possible)
+            if (t.startsWith("%PDF")) return renderPdf(t.toByteArray(StandardCharsets.ISO_8859_1), dpi())
+            // Base64-encoded PDF
+            return runCatching {
+                renderPdf(Base64.getDecoder().decode(t), dpi())
+            }.getOrNull()
         }
 
         input.document.addDocumentListener(object : DocumentListener {
@@ -275,8 +304,30 @@ class ZplToolWindowFactory : ToolWindowFactory {
 
         // ── Render action ─────────────────────────────────────────────────────
         fun doRender(@Suppress("UNUSED_PARAMETER") e: ActionEvent) {
-            val zpl = resolveZpl() ?: return
+            val raw = input.text.trim()
+            if (raw.isEmpty()) { setStatus("Input is empty", true); return }
 
+            val type = when (inputTypeCombo.selectedItem as String) {
+                INPUT_AUTO -> detectType(raw)
+                else       -> inputTypeCombo.selectedItem as String
+            }
+
+            // PDF path: render via PDFBox, skip the ZPL engine entirely
+            if (type == INPUT_PDF) {
+                setStatus("Rendering PDF…")
+                btnRender.isEnabled = false
+                val img = renderPdfInput(raw)
+                btnRender.isEnabled = true
+                if (img != null) {
+                    showImage(img)
+                    setStatus("PDF rendered  ${img.width} × ${img.height} px")
+                } else {
+                    setStatus("PDF rendering failed — invalid or unsupported PDF", true)
+                }
+                return
+            }
+
+            val zpl = resolveZpl() ?: return
             val source = sourceCombo.selectedItem as String
             setStatus("Rendering…")
             btnRender.isEnabled = false
@@ -315,6 +366,27 @@ class ZplToolWindowFactory : ToolWindowFactory {
         }
 
         btnRender.addActionListener(::doRender)
+
+        // ── Load PDF file ─────────────────────────────────────────────────────
+        btnLoadPdf.addActionListener {
+            val fc = JFileChooser().apply {
+                dialogTitle = "Open PDF file"
+                fileFilter = javax.swing.filechooser.FileNameExtensionFilter("PDF files", "pdf")
+            }
+            if (fc.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
+                val file = fc.selectedFile
+                setStatus("Rendering PDF: ${file.name}…")
+                btnLoadPdf.isEnabled = false
+                val img = runCatching { renderPdf(file.readBytes(), dpi()) }.getOrNull()
+                btnLoadPdf.isEnabled = true
+                if (img != null) {
+                    showImage(img)
+                    setStatus("PDF rendered (${file.name})  ${img.width} × ${img.height} px")
+                } else {
+                    setStatus("Failed to render ${file.name}", true)
+                }
+            }
+        }
 
         // ── Save ──────────────────────────────────────────────────────────────
         btnSave.addActionListener {
