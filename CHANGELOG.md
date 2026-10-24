@@ -3,7 +3,7 @@
 ## [1.1.0] — 2024-03-30
 
 ### Changed
-- Extracted rendering engine to standalone [zpl-renderer](https://github.com/Milimarty/zpl-renderer) library
+- Extracted rendering engine to standalone [zpl-renderer](https://github.com/MiladNalbandi/zpl-renderer) library
 - Renamed plugin class from `MyToolWindowFactory` to `ZplToolWindowFactory`
 - Updated plugin ID to `com.miladnalbandi.zpl-label-viewer`
 

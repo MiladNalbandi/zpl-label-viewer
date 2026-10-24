@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.miladnalbandi.zpl-label-viewer</id>
     <name>ZPL Label Viewer</name>
-    <vendor email="m.nalbandi.r@gmail.com" url="https://github.com/Milimarty/zpl-label-viewer">MiladNalbandi</vendor>
+    <vendor email="m.nalbandi.r@gmail.com" url="https://github.com/MiladNalbandi/zpl-label-viewer">MiladNalbandi</vendor>
 
     <description><![CDATA[
     <b>ZPL Label Viewer</b> — preview and debug ZPL II shipping labels without leaving your IDE.<br><br>
@@ -16,7 +16,7 @@
       <li>View decoded ZPL text from Base-64 input</li>
     </ul>
     <br>
-    Powered by <a href="https://github.com/Milimarty/zpl-renderer">zpl-renderer</a> open-source library.
+    Powered by <a href="https://github.com/MiladNalbandi/zpl-renderer">zpl-renderer</a> open-source library.
   ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

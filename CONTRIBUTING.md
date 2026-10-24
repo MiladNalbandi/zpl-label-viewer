@@ -10,7 +10,7 @@ Thank you for your interest in contributing!
 ## Development Setup
 
 ```bash
-git clone https://github.com/Milimarty/zpl-label-viewer.git
+git clone https://github.com/MiladNalbandi/zpl-label-viewer.git
 cd zpl-label-viewer
 ./gradlew buildPlugin -x buildSearchableOptions
 ```
@@ -28,7 +28,7 @@ This launches a fresh IDE instance with the plugin installed.
 1. Fork and create a branch from `main`.
 2. Make focused changes with clear commit messages.
 3. Open a PR describing what changed and why.
-4. For rendering improvements, consider contributing to [zpl-renderer](https://github.com/Milimarty/zpl-renderer) directly.
+4. For rendering improvements, consider contributing to [zpl-renderer](https://github.com/MiladNalbandi/zpl-renderer) directly.
 
 ## Code of Conduct
 

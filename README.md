@@ -1,18 +1,18 @@
 # ZPL Label Viewer
 
-[![Build](https://github.com/Milimarty/zpl-label-viewer/actions/workflows/build.yml/badge.svg)](https://github.com/Milimarty/zpl-label-viewer/actions/workflows/build.yml)
+[![Build](https://github.com/MiladNalbandi/zpl-label-viewer/actions/workflows/build.yml/badge.svg)](https://github.com/MiladNalbandi/zpl-label-viewer/actions/workflows/build.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 An **IntelliJ Platform plugin** that lets you preview and debug ZPL II shipping labels directly inside your IDE — no Zebra printer, no browser, no external tools needed.
 
-> **Rendering engine:** Powered by [zpl-renderer](https://github.com/Milimarty/zpl-renderer) — a standalone open-source ZPL II library you can also use independently in any JVM project.
+> **Rendering engine:** Powered by [zpl-renderer](https://github.com/MiladNalbandi/zpl-renderer) — a standalone open-source ZPL II library you can also use independently in any JVM project.
 
 ---
 
 ## Features
 
 - **Auto-detect** — paste raw ZPL or Base-64 encoded ZPL; the plugin detects the format automatically
-- **Local renderer** — renders offline using the embedded [zpl-renderer](https://github.com/Milimarty/zpl-renderer) library
+- **Local renderer** — renders offline using the embedded [zpl-renderer](https://github.com/MiladNalbandi/zpl-renderer) library
   - Text fields, fonts, word-wrap
   - Code 128, QR Code, EAN-8, EAN-13, UPC-A, Data Matrix barcodes
   - Graphic boxes, ellipses, diagonal lines
@@ -35,7 +35,7 @@ An **IntelliJ Platform plugin** that lets you preview and debug ZPL II shipping 
 
 ### From disk (manual)
 
-1. Download the latest `.zip` from [Releases](https://github.com/Milimarty/zpl-label-viewer/releases).
+1. Download the latest `.zip` from [Releases](https://github.com/MiladNalbandi/zpl-label-viewer/releases).
 2. In your IDE: **Settings → Plugins → ⚙ → Install Plugin from Disk…**
 3. Select the downloaded `.zip` and restart.
 
